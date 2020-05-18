@@ -20,12 +20,12 @@ public class ExampleTest extends BaseTest {
     }
 
     private void checkDataProjectionQuery(DatasetsService datasetsService, String... fields) {
-        RequestSpecification requestSpecification = datasetsService.request()
+        RequestSpecification requestSpecification = datasetsService.requestBuilder()
                 .top(10)
                 .contains("Caption", "имена")
                 .getFields(fields)
                 .build();
-        ValidatableResponse response = datasetsService.executeRow(requestSpecification)
+        ValidatableResponse response = datasetsService.executePostDatasets(requestSpecification)
                 .then()
                 .assertThat()
                 .body("Caption", everyItem(containsString("имена")));
@@ -34,20 +34,19 @@ public class ExampleTest extends BaseTest {
             response.body(field, everyItem(notNullValue()));
         }
 
-        response
-                .extract()
-                .body().as(ArrayNode.class).forEach(node -> assertThat(node.size(), equalTo(fields.length)));
+        response.extract().body().as(ArrayNode.class)
+                .forEach(node -> assertThat(node.size(), equalTo(fields.length)));
     }
 
     @Test(groups = "models")
     public void getDatasetId() {
         DatasetsService datasetsService = new DatasetsService(properties);
-        RequestSpecification requestSpecification = datasetsService.request()
+        RequestSpecification requestSpecification = datasetsService.requestBuilder()
                 .top(10)
                 .contains("Caption", "имена")
                 .getFields("Id", "Caption", "SefUrl")
                 .build();
-        DatasetModel[] datasets = datasetsService.execute(requestSpecification);
+        DatasetModel[] datasets = datasetsService.getDatasets(requestSpecification);
 
         for (DatasetModel dataset : datasets) {
             assertThat(dataset.getCaption(), containsString("имена"));

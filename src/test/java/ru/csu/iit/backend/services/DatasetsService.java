@@ -8,21 +8,23 @@ import ru.csu.iit.backend.models.DatasetModel;
 import java.util.Properties;
 
 public class DatasetsService extends BaseService {
+    private static final String ENDPOINT = "datasets";
+
     public DatasetsService(Properties properties) {
         super(properties);
     }
 
-    public DatasetRequestBuilder request() {
+    public DatasetRequestBuilder requestBuilder() {
         return new DatasetRequestBuilder(baseRequest());
     }
 
-    public DatasetModel[] execute(RequestSpecification requestSpecification) {
-        return requestSpecification.post("datasets").then()
+    public DatasetModel[] getDatasets(RequestSpecification requestSpecification) {
+        return executePostDatasets(requestSpecification).then()
                 .extract()
                 .body().as(DatasetModel[].class);
     }
 
-    public Response executeRow(RequestSpecification requestSpecification) {
-        return requestSpecification.post("datasets");
+    public Response executePostDatasets(RequestSpecification requestSpecification) {
+        return requestSpecification.post(ENDPOINT);
     }
 }

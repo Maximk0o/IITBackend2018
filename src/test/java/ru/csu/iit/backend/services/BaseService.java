@@ -12,18 +12,21 @@ import static io.restassured.RestAssured.given;
 
 public class BaseService {
     private final RequestSpecification spec;
-    private Properties properties;
 
     public BaseService(Properties properties) {
-        this.properties = properties;
-        spec = new RequestSpecBuilder()
+        RequestSpecBuilder specBuilder = new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)
                 .setBaseUri(properties.getProperty("base_uri"))
                 .setBasePath(properties.getProperty("base_path"))
-                .addFilter(new ResponseLoggingFilter())
-                .addFilter(new RequestLoggingFilter())
-                .addQueryParam("api_key", properties.getProperty("api_key"))
-                .build();
+                .addQueryParam("api_key", properties.getProperty("api_key"));
+
+        boolean devEnvironment = Boolean.parseBoolean(properties.getProperty("dev", "false"));
+        if (devEnvironment) {
+            specBuilder.addFilter(new ResponseLoggingFilter())
+                    .addFilter(new RequestLoggingFilter());
+        }
+
+        spec = specBuilder.build();
     }
 
     protected RequestSpecification baseRequest() {
